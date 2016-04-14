@@ -1,7 +1,7 @@
 {
   "name": "hubot-acrogov",
   "description": "A hubot script that translates government acronyms.",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": "higs4281 <higs4281@gmail.com>",
   "license": "CC0-1.0",
   "keywords": [
