@@ -13,7 +13,7 @@
 module.exports = (robot) ->
   
   fs = require 'fs'
-  acroPath = process.cwd()+'/acro.json'
+  acroPath = __dirname+'/acro.json'
   acroList = JSON.parse(fs.readFileSync(acroPath, 'utf8'))
 
   robot.respond /define (.*)$/i, (res) ->
@@ -31,3 +31,4 @@ module.exports = (robot) ->
     if acroObj.link
       answer = answer + " – " + acroObj.link
     return answer
+
