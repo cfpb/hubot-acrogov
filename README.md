@@ -22,3 +22,5 @@ Then add **hubot-acrogov** to your `external-scripts.json`:
 user1>> hubot define TRID
 hubot>> TRID stands for TILA-RESPA Integrated Disclosure — and TILA-RESPA stands for Truth in Lending Act-Real Estate Settlement Procedures Act
 ```
+
+
