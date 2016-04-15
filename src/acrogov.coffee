@@ -19,20 +19,20 @@ class AcroBot
     @robot.brain.on 'loaded', =>
       if @robot.brain.data.acrogov
         @cache = @robot.brain.data.acrogov
-      else
-        @cache = @getPublicAcronyms()
-        @getPrivateAcronyms()
-  getPublicAcronyms: () ->
+      @loadPublicAcronyms()
+      @loadPrivateAcronyms()
+  loadPublicAcronyms: () ->
     # read the acro.json file
     acroPath = __dirname + '/acro.json'
-    return JSON.parse(fs.readFileSync(acroPath, 'utf8'));
-  getPrivateAcronyms: () ->
+    publicAcronyms = JSON.parse fs.readFileSync(acroPath, 'utf8')
+    Object.assign @cache, publicAcronyms
+  loadPrivateAcronyms: () ->
     # read the private acro.json file
     acroPath = __dirname + '/acro.priv.json'
     try 
       if fs.accessSync(acroPath, fs.F_OK)
-        privateAcronyms = JSON.parse(fs.readFileSync(acroPath, 'utf8'));
-        Object.assign(@cache, privateAcronyms)
+        privateAcronyms = JSON.parse fs.readFileSync(acroPath, 'utf8')
+        Object.assign @cache, privateAcronyms
     catch e
   addAcronym: (term, definition) ->
     @cache[term.toUpperCase()] = {
@@ -66,4 +66,3 @@ module.exports = (robot) ->
     console.log res.match
     acroBot.addAcronym(res.match[1], res.match[2])
     res.send "I added #{res.match[1]}."
-
