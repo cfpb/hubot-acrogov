@@ -27,7 +27,7 @@ class AcroBot
     acroPath = __dirname + '/acro.json'
     return JSON.parse(fs.readFileSync(acroPath, 'utf8'));
   getPrivateAcronyms: () ->
-    # read the private acro.json file
+    # read an optional private acro.json file
     acroPath = __dirname + '/acro.priv.json'
     try 
       if fs.accessSync(acroPath, fs.F_OK)
@@ -39,6 +39,10 @@ class AcroBot
       name: definition
     }
     @robot.brain.data.acrogov = @cache
+  removeAcronym: (term) ->
+    delete @cache[term.toUpperCase()]
+    @robot.brain.data.acrogov = @cache
+
   getAll: -> @cache
   buildAnswer: (term) ->
     terms = @cache
@@ -48,7 +52,7 @@ class AcroBot
     #   answer = answer + " — " + acroObj.note
     # if acroObj.link
     #   answer = answer + " – " + acroObj.link
-    # return answer
+    return answer
 
 module.exports = (robot) ->
   acroBot = new AcroBot robot
@@ -66,4 +70,10 @@ module.exports = (robot) ->
     console.log res.match
     acroBot.addAcronym(res.match[1], res.match[2])
     res.send "I added #{res.match[1]}."
+
+  # delete an acronym from the brain
+  robot stop defining [term]  
+  robot.respond /stop defining (\w*)$/i, (res) ->
+    acroBot.removeAcronym(res.match[1])
+    res.send "I removed #{res.match[1]}."
 
