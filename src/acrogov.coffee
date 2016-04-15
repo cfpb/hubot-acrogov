@@ -21,10 +21,19 @@ class AcroBot
         @cache = @robot.brain.data.acrogov
       else
         @cache = @getPublicAcronyms()
+        @getPrivateAcronyms()
   getPublicAcronyms: () ->
     # read the acro.json file
     acroPath = __dirname + '/acro.json'
     return JSON.parse(fs.readFileSync(acroPath, 'utf8'));
+  getPrivateAcronyms: () ->
+    # read the private acro.json file
+    acroPath = __dirname + '/acro.priv.json'
+    try 
+      if fs.accessSync(acroPath, fs.F_OK)
+        privateAcronyms = JSON.parse(fs.readFileSync(acroPath, 'utf8'));
+        Object.assign(@cache, privateAcronyms)
+    catch e
   addAcronym: (term, definition) ->
     @cache[term.toUpperCase()] = {
       name: definition
@@ -35,11 +44,11 @@ class AcroBot
     terms = @cache
     acroObj = terms[term]
     answer = "#{term} stands for #{acroObj.name}"
-    if acroObj.note
-      answer = answer + " — " + acroObj.note
-    if acroObj.link
-      answer = answer + " – " + acroObj.link
-    return answer
+    # if acroObj.note
+    #   answer = answer + " — " + acroObj.note
+    # if acroObj.link
+    #   answer = answer + " – " + acroObj.link
+    # return answer
 
 module.exports = (robot) ->
   acroBot = new AcroBot robot
