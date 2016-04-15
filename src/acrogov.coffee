@@ -19,20 +19,20 @@ class AcroBot
     @robot.brain.on 'loaded', =>
       if @robot.brain.data.acrogov
         @cache = @robot.brain.data.acrogov
-      else
-        @cache = @getPublicAcronyms()
-        @getPrivateAcronyms()
-  getPublicAcronyms: () ->
+      @loadPublicAcronyms()
+      @loadPrivateAcronyms()
+  loadPublicAcronyms: () ->
     # read the acro.json file
     acroPath = __dirname + '/acro.json'
-    return JSON.parse(fs.readFileSync(acroPath, 'utf8'));
-  getPrivateAcronyms: () ->
+    publicAcronyms = JSON.parse fs.readFileSync(acroPath, 'utf8')
+    Object.assign @cache, publicAcronyms
+  loadPrivateAcronyms: () ->
     # read an optional private acro.json file
     acroPath = __dirname + '/acro.priv.json'
     try 
       if fs.accessSync(acroPath, fs.F_OK)
-        privateAcronyms = JSON.parse(fs.readFileSync(acroPath, 'utf8'));
-        Object.assign(@cache, privateAcronyms)
+        privateAcronyms = JSON.parse fs.readFileSync(acroPath, 'utf8')
+        Object.assign @cache, privateAcronyms
     catch e
   addAcronym: (term, definition) ->
     @cache[term.toUpperCase()] = {
@@ -59,11 +59,12 @@ module.exports = (robot) ->
 
   # get an acronym from the brain
   robot.respond /define (\w*)$/i, (res) ->
-    term = res.match[1].toUpperCase()
+    rawTerm = res.match[1]
+    term = rawTerm.toUpperCase()
     if term of acroBot.getAll()
       res.send acroBot.buildAnswer(term) 
     else
-      res.send "Sorry, can't find #{term}"
+      res.send "Sorry, can't find #{rawTerm}"
 
   # insert an acronym into the brain
   robot.respond /define (\w*) as (.*)$/i, (res) ->
@@ -72,8 +73,14 @@ module.exports = (robot) ->
     res.send "I added #{res.match[1]}."
 
   # delete an acronym from the brain
-  robot stop defining [term]  
   robot.respond /stop defining (\w*)$/i, (res) ->
-    acroBot.removeAcronym(res.match[1])
-    res.send "I removed #{res.match[1]}."
+    rawTerm = res.match[1]
+    term = rawTerm.toUpperCase()
+    if term of acroBot.getAll()
+      acroBot.removeAcronym(res.match[1])
+      res.send "I removed #{rawTerm}."
+    else
+      res.send "Sorry, couldn't find #{rawTerm}"
+
+
 
