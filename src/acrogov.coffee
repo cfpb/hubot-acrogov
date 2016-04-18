@@ -32,7 +32,7 @@ class AcroBot
     publicAcronyms = JSON.parse(fs.readFileSync(acroPath, 'utf8'))
     Object.assign @cache, publicAcronyms
   loadAcronyms: () ->
-    # first try an optional private acro.json file
+    # first try an optional private acro.priv.json file
     acroPrivPath = __dirname + '/json/acro.priv.json'
     fs.access acroPrivPath, fs.F_OK, (err) =>
       if err
