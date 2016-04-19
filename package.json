@@ -1,7 +1,7 @@
 {
   "name": "hubot-acrogov",
   "description": "A hubot script that translates government acronyms.",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "author": "higs4281 <higs4281@gmail.com>",
   "license": "CC0-1.0",
   "keywords": [
@@ -33,6 +33,7 @@
   },
   "main": "index.coffee",
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "install": "if [ -n \"$HUBOT_ACRO_PRIVATE_FILE\" ]; then curl -o src/json/acro.priv.json $HUBOT_ACRO_PRIVATE_FILE; fi"
   }
 }
