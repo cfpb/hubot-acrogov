@@ -33,6 +33,7 @@
   },
   "main": "index.coffee",
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "install": "if [ -n \"$HUBOT_ACRO_PRIVATE_FILE\" ]; then curl -o src/json/acro.priv.json $HUBOT_ACRO_PRIVATE_FILE; fi"
   }
 }
