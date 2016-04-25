@@ -17,6 +17,7 @@
 #       - deletions of acronyms defined in json files will be restored when the bot restarts
 #   hubot stop defining <term> as <definition>
 #     removes only the specified definition from the term's definition list
+#     if the passed definition is the term's only definition, then the term itself is deleted
 #
 # Author:
 #   higs4281
