@@ -40,13 +40,10 @@ class AcroBot
     fs.access acroPrivPath, fs.F_OK, (err) =>
       if err
         @loadPublicAcronyms()
-        console.log("loaded public acronyms")
       else
         @private = JSON.parse(fs.readFileSync(acroPrivPath, 'utf8'))
         Object.assign @cache, @private
-        console.log("loaded private acronyms from" + acroPrivPath)
         @loadBrainAcronyms()
-        console.log("added brain acronyms")
   loadBrainAcronyms: () ->
     # add brain acronyms to the party
     brainAcronyms = @robot.brain.get 'data.acrogov'
@@ -59,7 +56,7 @@ class AcroBot
   appendAcronym: (term, definition) ->
     oldTerm = @cache[term.toUpperCase()].name
     @cache[term.toUpperCase()] = {
-      name: oldTerm + ' OR ' + definition 
+      name: oldTerm + ' OR ' + definition
     }
     @robot.brain.set 'data.acrogov', @cache
   removeAcronym: (term) ->
@@ -95,7 +92,7 @@ module.exports = (robot) ->
     else if definerTokens.length == 1
       term = rawTerm.toUpperCase()
       if term of acroBot.getAll()
-        res.send acroBot.buildAnswer(term) 
+        res.send acroBot.buildAnswer(term)
       else
         res.send "Sorry, can't find #{rawTerm}"
     else if definerTokens.length == 2

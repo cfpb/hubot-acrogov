@@ -19,17 +19,20 @@
   },
   "dependencies": {
     "coffee-script": "~1.6",
-    "grunt": "^1.0.1"
+    "grunt": "^1.0.1",
+    "hubot": "^2.18.0"
   },
   "devDependencies": {
-    "mocha": "*",
-    "chai": "*",
-    "sinon-chai": "*",
-    "sinon": "*",
+    "chai": "^3.5.0",
+    "grunt-contrib-watch": "~0.5.3",
     "grunt-mocha-test": "~0.7.0",
     "grunt-release": "~0.6.0",
+    "hubot-mock-adapter": "^1.0.0",
+    "hubot-mock-adapter-helper": "0.0.1",
     "matchdep": "~0.1.2",
-    "grunt-contrib-watch": "~0.5.3"
+    "mocha": "*",
+    "sinon": "^1.17.4",
+    "sinon-chai": "*"
   },
   "main": "index.coffee",
   "scripts": {
