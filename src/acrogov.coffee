@@ -2,15 +2,22 @@
 #   checks an acronym against a set of acronyms used at CFPB and provides its meaning
 #
 # Dependencies:
-#   json file "acro.json"
-#   optional private json file "acro.priv.json"
+#   public definitions file "src/json/acro.json"
+#   optional private definitions file "src/json/acro.priv.json"
 #
 # Commands:
-#   hubot define <term> - returns an acronym's meaning if it's in our brain cache
-#   hubot define <term> as <definition> - stores acronym definition in hubot's brain
-#   hubot stop defining <term> - removes an acronym definition from hubot's brain
-#     deletions of locally defined acronyms are permanent
-#     deletions of acronyms defined in json files will be restored when the bot restarts
+#   hubot define <term>
+#     returns the definition of an acronym or phrase if it's in the brain cache
+#   hubot define <term> as <definition>
+#     stores acronym definition in hubot's brain
+#       - if the acronym is already defined, the new definition will be added
+#   hubot stop defining <term>
+#     removes an acronym and its definition from hubot's brain
+#       - deletions of locally defined acronyms are permanent
+#       - deletions of acronyms defined in json files will be restored when the bot restarts
+#   hubot stop defining <term> as <definition>
+#     removes only the specified definition from the term's definition list
+#     if the passed definition is the term's only definition, then the term itself is deleted
 #
 # Author:
 #   higs4281
@@ -20,37 +27,47 @@ fs = require 'fs'
 class AcroBot
   constructor: (@robot) ->
     @cache = {}
-    @robot.brain.on 'loaded', =>
-      if @robot.brain.data.acrogov
-        @cache = @robot.brain.data.acrogov
-        @loadAcronyms()
-      else
-        @loadAcronyms()
+    @private = {}
+    @loadAcronyms()
   loadPublicAcronyms: () ->
     # read the acro.json file
     acroPath = __dirname + '/json/acro.json'
     publicAcronyms = JSON.parse(fs.readFileSync(acroPath, 'utf8'))
-    Object.assign @cache, publicAcronyms
+    @cache = publicAcronyms
   loadAcronyms: () ->
     # first try an optional private acro.priv.json file
     acroPrivPath = __dirname + '/json/acro.priv.json'
     fs.access acroPrivPath, fs.F_OK, (err) =>
       if err
         @loadPublicAcronyms()
-        console.log("loaded public acronyms")
       else
-        privateAcronyms = JSON.parse(fs.readFileSync(acroPrivPath, 'utf8'))
-        Object.assign @cache, privateAcronyms
-        console.log("loaded private acronyms from" + acroPrivPath)
+        @private = JSON.parse(fs.readFileSync(acroPrivPath, 'utf8'))
+        Object.assign @cache, @private
+        @loadBrainAcronyms()
+  loadBrainAcronyms: () ->
+    # add brain acronyms to the party
+    brainAcronyms = @robot.brain.get 'data.acrogov'
+    Object.assign @cache, brainAcronyms
   addAcronym: (term, definition) ->
     @cache[term.toUpperCase()] = {
       name: definition
     }
-    @robot.brain.data.acrogov = @cache
+    @robot.brain.set 'data.acrogov', @cache
+  appendAcronym: (term, definition) ->
+    oldTerm = @cache[term.toUpperCase()].name
+    @cache[term.toUpperCase()] = {
+      name: oldTerm + ' OR ' + definition
+    }
+    @robot.brain.set 'data.acrogov', @cache
   removeAcronym: (term) ->
     delete @cache[term.toUpperCase()]
-    @robot.brain.data.acrogov = @cache
-
+    @robot.brain.set 'data.acrogov', @cache
+  removeAcronymDefinition: (term, definition) ->
+    terms = @cache[term].name.split(' OR ')
+    index = terms.indexOf(definition)
+    terms.splice(index, 1)
+    @cache[term].name = terms.join(' OR ')
+    @robot.brain.set 'data.acrogov', @cache
   getAll: -> @cache
   buildAnswer: (term) ->
     terms = @cache
@@ -62,33 +79,63 @@ class AcroBot
       answer = answer + " – " + acroObj.link
     return answer
 
+
 module.exports = (robot) ->
   acroBot = new AcroBot robot
 
   # either get an acronym from the brain or define a new one
   robot.respond /define (.*)$/i, (res) ->
     rawTerm = res.match[1]
-    if rawTerm.split(' ')[1] == 'as'
-      terms = rawTerm.split(' as ')
-      term = terms[0].toUpperCase()
-      if term of acroBot.getAll()
-        res.send "Sorry, #{term} is already a defined acronym"
-      else
-        acroBot.addAcronym(terms[0], terms[1])
-        res.send "I added #{terms[0]}."
-    else
+    definerTokens = rawTerm.split(' as ')
+    if definerTokens.length > 2
+      res.send "Sorry, you can't use 'as' more than once in a definition. The usage for adding a definition is 'define <acronym or phrase> as <new definition>"
+    else if definerTokens.length == 1
       term = rawTerm.toUpperCase()
       if term of acroBot.getAll()
-        res.send acroBot.buildAnswer(term) 
+        res.send acroBot.buildAnswer(term)
       else
         res.send "Sorry, can't find #{rawTerm}"
+    else if definerTokens.length == 2
+      term = definerTokens[0].toUpperCase()
+      if term of acroBot.getAll()
+        brainTokens = acroBot.getAll()[term].name.split(' OR ')
+        if definerTokens[1] in brainTokens
+          res.send "Sorry, #{definerTokens[1]} is already a definition for #{term}"
+        else
+          acroBot.appendAcronym(definerTokens[0], definerTokens[1])
+          res.send "Added #{definerTokens[1]} as a definition for #{term}"
+      else
+        acroBot.addAcronym(definerTokens[0], definerTokens[1])
+        res.send "I added #{definerTokens[0]}."
 
-  # delete an acronym from the brain
+  # delete an acronym from the brain or, if there are multiple definitions, deletes the one specified
   robot.respond /stop defining (.*)$/i, (res) ->
     rawTerm = res.match[1]
-    term = rawTerm.toUpperCase()
-    if term of acroBot.getAll()
-      acroBot.removeAcronym(res.match[1])
-      res.send "I removed #{rawTerm}."
-    else
-      res.send "Sorry, couldn't find #{rawTerm}"
+    definerTokens = rawTerm.split(' as ')
+    if definerTokens.length > 2
+        res.send "Sorry, you can't use keyword 'as' more than once in a definition. The usage for deleting a single definition is 'stop defining <acronym or phrase> as <new definition>"
+    else if definerTokens.length == 1
+      term = rawTerm.toUpperCase()
+      if term of acroBot.getAll()
+        acroBot.removeAcronym(res.match[1])
+        if term of acroBot.private
+          res.send "I removed #{term}, but since it's in our master list, it will return with the next restart."
+        else
+          res.send "I removed #{term}."
+      else
+        res.send "Sorry, couldn't find #{rawTerm}"
+    else if definerTokens.length == 2
+      term = definerTokens[0].toUpperCase()
+      if term of acroBot.getAll()
+        brainTokens = acroBot.getAll()[term].name.split(' OR ')
+        if brainTokens.indexOf(definerTokens[1]) >= 0
+          if brainTokens.length == 1
+            acroBot.removeAcronym(term)
+            res.send "Deleted #{term}, as '#{definerTokens[1]}' was its only definition"
+          else
+            acroBot.removeAcronymDefinition(term, definerTokens[1])
+            res.send "Deleted '#{definerTokens[1]}' as a definition for #{term}"
+        else
+          res.send "Sorry, couldn't find '#{definerTokens[1]}' as a definition for #{term}"
+      else
+        res.send "Sorry, couldn't find #{term}"
