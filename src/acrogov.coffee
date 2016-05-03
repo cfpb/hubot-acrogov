@@ -40,13 +40,10 @@ class AcroBot
     fs.access acroPrivPath, fs.F_OK, (err) =>
       if err
         @loadPublicAcronyms()
-        console.log("loaded public acronyms")
       else
         @private = JSON.parse(fs.readFileSync(acroPrivPath, 'utf8'))
         Object.assign @cache, @private
-        console.log("loaded private acronyms from" + acroPrivPath)
         @loadBrainAcronyms()
-        console.log("added brain acronyms")
   loadBrainAcronyms: () ->
     # add brain acronyms to the party
     brainAcronyms = @robot.brain.get 'data.acrogov'
