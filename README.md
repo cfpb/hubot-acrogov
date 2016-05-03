@@ -1,6 +1,6 @@
 # hubot-acrogov [![Build Status][travis-image]][travis-url] [![NPM version][npm-image]][npm-url]
 
-A hubot script that defines acronyms used by government agencies
+A hubot script that defines acronyms and other terms used by government agencies
 
 See [`src/acrogov.coffee`](src/acrogov.coffee) for full documentation.
 
@@ -24,7 +24,7 @@ hubot>> TRID stands for TILA-RESPA Integrated Disclosure — and TILA-RESPA stan
 ```
 
 ## Definitions
-The starter set of definitions are for terms in use at the [Consumer Financial Protection Bureau](http://www.consumerfinance.gov). You can add your own set of definitions by overwriting src/json/acro.json.
+The starter definitions are for terms in use at the [Consumer Financial Protection Bureau](http://www.consumerfinance.gov). You can use your own set by overwriting src/json/acro.json.
 
 If you want to use a private set of definitions, you can alternatively set an environment variable called `HUBOT_ACRO_PRIVATE_FILE` on your server that points to the location of your private json file. The hubot will load those definitions instead of the public ones. 
 
