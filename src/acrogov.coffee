@@ -1,23 +1,18 @@
 # Description:
-#   checks an acronym against a set of acronyms used at CFPB and provides its meaning
-#
-# Dependencies:
-#   public definitions file "src/json/acro.json"
-#   optional private definitions file "src/json/acro.priv.json"
+#   Checks an acronym against a set of acronyms used at CFPB and provides its meaning
 #
 # Commands:
-#   hubot define <term>
-#     returns the definition of an acronym or phrase if it's in the brain cache
-#   hubot define <term> as <definition>
-#     stores acronym definition in hubot's brain
-#       - if the acronym is already defined, the new definition will be added
-#   hubot stop defining <term>
-#     removes an acronym and its definition from hubot's brain
-#       - deletions of locally defined acronyms are permanent
-#       - deletions of acronyms defined in json files will be restored when the bot restarts
-#   hubot stop defining <term> as <definition>
-#     removes only the specified definition from the term's definition list
-#     if the passed definition is the term's only definition, then the term itself is deleted
+#   hubot define <term> - returns the definition of the term
+#   hubot define <term> as <definition> - save the definition of a term
+#   hubot stop defining <term> - removes a term and all of its definitions
+#   hubot stop defining <term> as <definition> - removes the specified definition of the term
+#
+# Notes:
+#   - Definitions found in "src/json/acro.json" are loaded at start-up.
+#   - Definitions with sensitive information can be stored in "src/json/acro.priv.json".
+#   - If a term is already defined, the new definition will be added.
+#   - Definition deletions are permanent unless they're in.
+#   - Deletions of acronyms defined in json files will be restored when the bot restarts.
 #
 # Author:
 #   higs4281
