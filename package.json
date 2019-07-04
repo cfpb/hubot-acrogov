@@ -21,7 +21,7 @@
     "coffee-script": "~1.6",
     "grunt": "^1.0.1",
     "hubot": "^2.18.0",
-    "snyk": "^1.85.0"
+    "snyk": "^1.190.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
@@ -40,7 +40,8 @@
     "test": "grunt test",
     "install": "if [ -n \"$HUBOT_ACRO_PRIVATE_FILE\" ]; then curl -o src/json/acro.priv.json $HUBOT_ACRO_PRIVATE_FILE; fi",
     "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "prepare": "npm run snyk-protect",
+    "prepublish": "npm run snyk-protect"
   },
   "snyk": true
 }
