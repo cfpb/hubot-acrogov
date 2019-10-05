@@ -21,7 +21,7 @@
     "coffee-script": "~1.6",
     "grunt": "^1.0.1",
     "hubot": "^2.18.0",
-    "snyk": "^1.85.0"
+    "snyk": "^1.231.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
