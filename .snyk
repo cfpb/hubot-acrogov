@@ -1,5 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.12.0
+version: v1.14.1
 ignore: {}
 # patches apply the minimum changes required to fix a vulnerability
 patch:
@@ -8,3 +8,10 @@ patch:
         patched: '2018-06-26T08:10:57.819Z'
     - hubot > express > connect > serve-static > send > mime:
         patched: '2018-06-26T08:10:57.819Z'
+  SNYK-JS-LODASH-567746:
+    - grunt > grunt-legacy-log > lodash:
+        patched: '2020-05-01T08:21:00.654Z'
+    - grunt > grunt-legacy-util > lodash:
+        patched: '2020-05-01T08:21:00.654Z'
+    - grunt > grunt-legacy-log > grunt-legacy-log-utils > lodash:
+        patched: '2020-05-01T08:21:00.654Z'
